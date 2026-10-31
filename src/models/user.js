@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema(
         "https://www.singaporebusinesscentre.com.sg/wp-content/uploads/2016/12/singapore-business-centre-team-placeholder-t2.png",
     },
     about: { type: "String", default: "Default about text" },
-    skills: { type: [String], default: [] },
+    skills: { type: [String] },
   },
   { timestamps: true },
 );
