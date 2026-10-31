@@ -7,27 +7,15 @@ const User = require("./src/models/user");
 console.log("rajesh server", PORT);
 app.use(express.json()); // Middleware to parse JSON request bodies
 
-app.post("/signup", async (req, res) => {
-  console.log("Signup request received:", req.body); // Log the request body for debugging
-  // Handle signup logic here
-  const user = new User({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    password: req.body.password,
-    age: req.body.age,
-    gender: req.body.gender,
-  });
-  await user.save();
-  res.send("User signed up successfully");
-});
+const authRoutes = require("./src/routes/auth/auth");
+app.use("/", authRoutes);
 // Get all users
 app.get("/user", async (req, res) => {
-  const userEmail = "rajesh.coer@gmail.com";
+  const userEmail = req.query.email || "rajesh.coer@gmail.com";
   try {
-    const users = await User.find({ email: userEmail }); // Exclude the current user from the feed
-    if (users.length === 0) {
-      return res.status(404).send("No users found");
+    const users = await User.findOne({ email: userEmail }).exec(); // Exclude the current user from the feed
+    if (!users) {
+      return res.status(404).send("User not found");
     }
     res.send(users);
   } catch (error) {
@@ -35,20 +23,7 @@ app.get("/user", async (req, res) => {
   }
 });
 
-//Update user profile
-app.patch("/user", async (req, res) => {
-  const userId = req.body.userId; // Assuming userId is sent in the request body
-  console.log("Updating user with ID:", userId);
-  const data = req.body;
-  try {
-    const user = await User.findByIdAndUpdate({ _id: userId }, data, {
-      returnDocument: "after", // Return the updated document
-    });
-    res.send("User profile updated successfully");
-  } catch (error) {
-    res.status(400).send("Error updating user profile");
-  }
-});
+
 //Feed
 app.get("/feed", async (req, res) => {
   try {
@@ -58,6 +33,16 @@ app.get("/feed", async (req, res) => {
     res.status(400).send("Error fetching feed");
   }
 });
+// Delete user
+app.delete("/user", async (req, res) => {
+    const userId = '6adeffa885cde603bfd4413a'; // Assuming userId is sent in the request body
+    try{
+        const user = await User.findByIdAndDelete({ _id: userId });
+        res.send("User deleted successfully");
+    } catch (error) {
+        res.status(400).send("Error deleting user");
+    }
+})
 // Connect to MongoDB
 connectDB()
   .then(() => {
