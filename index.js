@@ -1,17 +1,20 @@
 const express = require("express");
 const connectDB = require("./src/config/database");
-
+const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const User = require("./src/models/user");
 console.log("rajesh server", PORT);
 app.use(express.json()); // Middleware to parse JSON request bodies
+app.use(cookieParser()); // Middleware to parse cookies
+
 
 const authRoutes = require("./src/routes/auth/auth");
 app.use("/", authRoutes);
 // Get all users
 app.get("/user", async (req, res) => {
-  const userEmail = req.query.email || "rajesh.coer@gmail.com";
+  const userEmail = req.query.email || "akshay.kumar@gmail.com";
   try {
     const users = await User.findOne({ email: userEmail }).exec(); // Exclude the current user from the feed
     if (!users) {
@@ -26,6 +29,8 @@ app.get("/user", async (req, res) => {
 
 //Feed
 app.get("/feed", async (req, res) => {
+    const cookieValue = req.cookies;
+    console.log("Cookie value:", cookieValue);
   try {
     const USERS = await User.find({});
     res.send(USERS);
